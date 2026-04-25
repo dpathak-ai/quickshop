@@ -1,0 +1,26 @@
+# Gradle
+.gradle
+build
+.kotlin
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# macOS
+.DS_Store
+
+# Secrets — never commit; copy .env.example and fill in values
+.env
+
+# Logs
+logs/
+
+.claude
+
+# Spring Boot local overrides
+application-local.yml
+application-local.yaml
