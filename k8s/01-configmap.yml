@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quickshop-config
+  namespace: quickshop
+data:
+  SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/quickshop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8"
+  SPRING_DATA_REDIS_HOST: "redis"
+  SPRING_DATA_REDIS_PORT: "6379"
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "host.docker.internal:9092"
+  #SPRING_KAFKA_BOOTSTRAP_SERVERS: "<confluent-bootstrap-url>:9092"
+  #SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL: "SASL_SSL"
+  #SPRING_KAFKA_PROPERTIES_SASL_MECHANISM: "PLAIN"
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://service-registry:8761/eureka/"
+  #MANAGEMENT_OTLP_TRACING_ENDPOINT: "http://jaeger:4318/v1/traces"

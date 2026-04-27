@@ -21,7 +21,7 @@ spring:
         format_sql: true
   sql:
     init:
-      mode: NEVER
+      mode: Always
   data:
     redis:
       host: localhost
