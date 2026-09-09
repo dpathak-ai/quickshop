@@ -101,7 +101,7 @@ public class ProductService {
                 .build();
     }
 
-    @Cacheable(value = "product", key = "#id")
+    @Cacheable(value = "product-v2", key = "#id")
     @Transactional(readOnly = true)
     public ProductResponseV2 getProductByIdV2(Long id) {
         log.debug("Fetching product(v2) from DB - id: {}", id);
