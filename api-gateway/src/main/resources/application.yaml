@@ -14,16 +14,11 @@ spring:
     gateway:
       server:
         webflux:
-          # Trust local proxy headers
-          trusted-proxies: ".*"
-          # Auto-discover routes from Eureka
           discovery:
             locator:
               enabled: true
               lower-case-service-id: true
-
           routes:
-
             - id: user-service-auth
               uri: lb://user-service
               predicates:
