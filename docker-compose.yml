@@ -96,6 +96,18 @@ services:
     networks:
       - quickshop-network
 
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    container_name: quickshop-kafka-exporter
+    command: ["--kafka.server=quickshop-kafka:29092"]
+    ports:
+      - "9308:9308"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - quickshop-network
+
   jaeger:
     image: jaegertracing/all-in-one:latest
     container_name: quickshop-jaeger
