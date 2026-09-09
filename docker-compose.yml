@@ -118,6 +118,30 @@ services:
     networks:
       - quickshop-network
 
+  loki:
+    image: grafana/loki:latest
+    container_name: quickshop-loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    networks:
+      - quickshop-network
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: quickshop-promtail
+    command: -config.file=/etc/promtail/config.yaml
+    volumes:
+      - ./promtail/promtail-config.yaml:/etc/promtail/config.yaml
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - loki
+    networks:
+      - quickshop-network
+
   grafana:
     image: grafana/grafana:latest
     container_name: quickshop-grafana
@@ -131,6 +155,7 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning
     depends_on:
       - prometheus
+      - loki
     networks:
       - quickshop-network
 
@@ -331,6 +356,7 @@ services:
 volumes:
   mysql-data:
   grafana-data:
+  loki-data:
 
 networks:
   quickshop-network:
