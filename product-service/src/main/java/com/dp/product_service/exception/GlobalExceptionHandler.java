@@ -22,9 +22,9 @@ import java.util.Objects;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<ApiErrorResponse> handleUserAlreadyExists(ProductNotFoundException ex) {
+    public ResponseEntity<ApiErrorResponse> handleProductNotFound(ProductNotFoundException ex) {
         return buildResponse(
-                HttpStatus.CONFLICT,
+                HttpStatus.NOT_FOUND,
                 "Product Not Found",
                 ex.getMessage()
         );
