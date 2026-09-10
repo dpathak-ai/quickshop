@@ -50,6 +50,9 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}     # tag every metric with service name
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
 
 
 logging:

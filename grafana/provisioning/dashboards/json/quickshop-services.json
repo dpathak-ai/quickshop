@@ -170,6 +170,72 @@
       ],
       "fieldConfig": { "defaults": { "unit": "s", "custom": { "fillOpacity": 10 } }, "overrides": [] },
       "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] } }
+    },
+    {
+      "id": 9,
+      "title": "HTTP Latency p95",
+      "description": "95th percentile request latency from histogram buckets (management.metrics.distribution.percentiles-histogram.http.server.requests). Unlike the average latency panel, this surfaces tail latency that a mean hides.",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 36, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[5m])) by (le, job))",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] } }
+    },
+    {
+      "id": 10,
+      "title": "HTTP Latency p99",
+      "description": "99th percentile request latency from histogram buckets. This is usually what actually pages people, not the average.",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 36, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket[5m])) by (le, job))",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] } }
+    },
+    {
+      "id": 11,
+      "title": "JVM Heap Usage %",
+      "description": "Heap used as a percentage of max heap. Sustained >85% means GC can't reclaim enough and the next stop is OutOfMemoryError.",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 44, "w": 24, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(jvm_memory_used_bytes{area=\"heap\"}) by (job) / sum(jvm_memory_max_bytes{area=\"heap\"}) by (job) * 100",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "custom": { "fillOpacity": 10, "thresholdsStyle": { "mode": "line" } },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 85, "color": "red" }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] } }
     }
   ]
 }
