@@ -1,0 +1,146 @@
+{
+  "id": null,
+  "uid": "quickshop-load-test",
+  "title": "QuickShop - Load Test",
+  "description": "Client-side view from k6 (pushed via Prometheus remote-write) alongside the server-side view from the same services, so load intensity and service response sit on one timeline.",
+  "tags": ["quickshop"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "label": "Data source",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {},
+        "hide": 0
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "k6 Active VUs",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 7 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [{ "refId": "A", "expr": "k6_vus", "legendFormat": "VUs" }],
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "fillOpacity": 15 } }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } }
+    },
+    {
+      "id": 2,
+      "title": "k6 Iterations/sec",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 7 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [{ "refId": "A", "expr": "sum(rate(k6_iterations_total[1m]))", "legendFormat": "iterations/s" }],
+      "fieldConfig": { "defaults": { "unit": "ops", "custom": { "fillOpacity": 15 } }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } }
+    },
+    {
+      "id": 3,
+      "title": "k6 Request Rate by Endpoint (client-side)",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 7, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(k6_http_reqs_total{name=~\"ProductList|ProductDetail|InventoryCheck|CreateOrder\"}[1m])) by (name)",
+          "legendFormat": "{{name}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] } }
+    },
+    {
+      "id": 4,
+      "title": "k6 p99 Latency by Endpoint (client-side)",
+      "description": "What the load generator itself measured end-to-end, including network + gateway hop - compare against the server-side p99 panel below to see how much time the gateway/network adds.",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 7, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(k6_http_req_duration_p99{name=~\"ProductList|ProductDetail|InventoryCheck|CreateOrder\"}) by (name)",
+          "legendFormat": "{{name}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] } }
+    },
+    {
+      "id": 5,
+      "title": "k6 Failed Request Rate by Endpoint (client-side checks)",
+      "description": "Fraction of requests that failed k6's expected-response check per endpoint. Catches non-5xx failures (e.g. an endpoint wrongly returning 401) that the server-side 5xx error panel would miss entirely.",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 15, "w": 24, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(k6_http_req_failed_rate{name=~\"ProductList|ProductDetail|InventoryCheck|CreateOrder\"}) by (name) * 100",
+          "legendFormat": "{{name}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100, "custom": { "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] } }
+    },
+    {
+      "id": 6,
+      "title": "Server-Side HTTP Request Rate by Service",
+      "description": "Same window, seen from inside the services (Actuator/Micrometer) rather than from the load generator.",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 23, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_server_requests_seconds_count[1m])) by (job)",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] } }
+    },
+    {
+      "id": 7,
+      "title": "Server-Side p99 Latency by Service",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 23, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket[5m])) by (le, job))",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] } }
+    },
+    {
+      "id": 8,
+      "title": "Server-Side 5xx Error Rate by Service",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 31, "w": 24, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "$datasource" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_server_requests_seconds_count{status=~\"5..\"}[1m])) by (job)",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] } }
+    }
+  ]
+}
